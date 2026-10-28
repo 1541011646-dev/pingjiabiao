@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>培智学校职业教育质量评价系统</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%233498db'/%3E%3Ctext x='32' y='44' font-size='32' text-anchor='middle' fill='white'%3E评%3C/text%3E%3C/svg%3E">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #333; line-height: 1.6; }
+.container { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+/* 登录页 */
+.login-screen { text-align: center; padding-top: 60px; }
+.login-screen h1 { font-size: 26px; color: #2c3e50; margin-bottom: 12px; }
+.login-screen .subtitle { color: #7f8c8d; margin-bottom: 35px; }
+.input-group { max-width: 400px; margin: 0 auto 20px; text-align: left; }
+.input-group label { display: block; margin-bottom: 6px; font-weight: 500; color: #555; }
+.input-group input { width: 100%; padding: 12px 16px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; transition: border-color .2s; }
+.input-group input:focus { border-color: #3498db; }
+.btn-primary { background: #3498db; color: #fff; border: none; padding: 14px 40px; font-size: 16px; border-radius: 8px; cursor: pointer; margin: 8px; transition: background .2s; }
+.btn-primary:hover { background: #2980b9; }
+.btn-secondary { background: #ecf0f1; color: #333; border: none; padding: 12px 28px; font-size: 15px; border-radius: 8px; cursor: pointer; margin: 8px; transition: background .2s; }
+.btn-secondary:hover { background: #d5dbdb; }
+.school-tab.active { background: #3498db; color: #fff; }
+.btn-danger { background: #e74c3c; color: #fff; border: none; padding: 10px 24px; font-size: 14px; border-radius: 6px; cursor: pointer; margin: 5px; }
+.btn-danger:hover { background: #c0392b; }
+
+/* 答题页 */
+.progress-bar { position: sticky; top: 0; background: #fff; padding: 12px 0; z-index: 100; border-bottom: 1px solid #eee; }
+.progress-info { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: #666; }
+.progress-track { height: 6px; background: #ecf0f1; border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: #3498db; border-radius: 3px; transition: width .3s; }
+
+.section-title { font-size: 20px; font-weight: 600; color: #2c3e50; margin: 30px 0 15px; padding-left: 12px; border-left: 4px solid #3498db; }
+.subsection-title { font-size: 16px; font-weight: 500; color: #555; margin: 20px 0 10px; padding-left: 8px; border-left: 3px solid #95a5a6; }
+
+.question-card { background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.question-text { font-size: 16px; font-weight: 500; margin-bottom: 15px; color: #2c3e50; }
+.question-num { display: inline-block; background: #3498db; color: #fff; width: 28px; height: 28px; line-height: 28px; text-align: center; border-radius: 50%; font-size: 14px; margin-right: 8px; }
+.options { display: flex; flex-direction: column; gap: 10px; }
+.option-item { display: flex; align-items: flex-start; padding: 12px 15px; border: 2px solid #eee; border-radius: 8px; cursor: pointer; transition: all .2s; }
+.option-item:hover { border-color: #3498db; background: #f8f9fa; }
+.option-item.selected { border-color: #3498db; background: #ebf5fb; }
+.option-radio { width: 18px; height: 18px; border: 2px solid #bbb; border-radius: 50%; margin-right: 12px; margin-top: 2px; flex-shrink: 0; position: relative; }
+.option-item.selected .option-radio { border-color: #3498db; }
+.option-item.selected .option-radio::after { content: ''; position: absolute; top: 3px; left: 3px; width: 8px; height: 8px; background: #3498db; border-radius: 50%; }
+.option-label { font-size: 14px; color: #555; }
+.option-score { display: inline-block; background: #ecf0f1; padding: 2px 8px; border-radius: 4px; font-size: 12px; color: #666; margin-right: 8px; font-weight: 500; }
+
+.nav-buttons { display: flex; justify-content: space-between; margin-top: 30px; padding-bottom: 50px; }
+
+/* 结果页 */
+.result-screen { padding-top: 20px; }
+.result-summary { background: linear-gradient(135deg, #3498db, #2c3e50); color: #fff; border-radius: 12px; padding: 30px; text-align: center; margin-bottom: 25px; }
+.result-summary .total-score { font-size: 48px; font-weight: 700; margin: 10px 0; }
+.result-summary .score-label { font-size: 16px; opacity: 0.9; }
+.result-summary .grade { font-size: 20px; margin-top: 10px; padding: 6px 20px; background: rgba(255,255,255,0.2); border-radius: 20px; display: inline-block; }
+
+.section-score-card { background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.section-score-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.section-score-name { font-size: 16px; font-weight: 600; color: #2c3e50; }
+.section-score-value { font-size: 20px; font-weight: 700; color: #3498db; }
+.score-bar { height: 8px; background: #ecf0f1; border-radius: 4px; overflow: hidden; margin-top: 8px; }
+.score-bar-fill { height: 100%; border-radius: 4px; transition: width .5s; }
+
+.analysis-box { background: #fff; border-radius: 10px; padding: 25px; margin-top: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.analysis-box h3 { font-size: 18px; margin-bottom: 15px; color: #2c3e50; }
+.analysis-box p { margin-bottom: 10px; color: #555; font-size: 14px; }
+.strength-item, .weakness-item { padding: 10px 15px; border-radius: 6px; margin-bottom: 8px; font-size: 14px; }
+.strength-item { background: #e8f8f5; border-left: 4px solid #27ae60; }
+.weakness-item { background: #fdedec; border-left: 4px solid #e74c3c; }
+
+/* 汇总页 */
+.summary-screen { padding-top: 20px; }
+.summary-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px; }
+.summary-table th, .summary-table td { padding: 12px 10px; text-align: center; border-bottom: 1px solid #eee; font-size: 14px; }
+.summary-table th { background: #3498db; color: #fff; font-weight: 500; }
+.summary-table tr:last-child td { border-bottom: none; }
+.summary-table .avg-row { background: #f0f7ff; font-weight: 600; }
+.summary-table .name-col { text-align: left; padding-left: 15px; }
+
+.empty-tip { text-align: center; padding: 60px 20px; color: #999; }
+
+.hidden { display: none; }
+@media print { .no-print { display: none; } body { background: #fff; } }
+@media (max-width: 600px) {
+  .container { padding: 12px; }
+  .summary-table th, .summary-table td { padding: 8px 5px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ===== 登录页 ===== -->
+<div id="loginScreen" class="login-screen">
+  <h1>培智学校职业教育质量评价系统</h1>
+  <p class="subtitle">多学校版</p>
+  <div id="schoolLoginArea">
+    <div class="input-group">
+      <label>学校名称</label>
+      <input type="text" id="loginSchool" placeholder="请输入学校全称">
+    </div>
+    <button class="btn-primary" onclick="schoolLogin()">开始填写</button>
+    <div style="margin-top:20px;">
+      <a href="javascript:void(0)" onclick="showAdminLogin()" style="color:#3498db;font-size:14px;">管理员入口</a>
+    </div>
+  </div>
+  <div id="adminLoginArea" style="display:none;">
+    <div class="input-group">
+      <label>管理员密码</label>
+      <input type="password" id="adminPassword" placeholder="请输入管理员密码">
+    </div>
+    <button class="btn-primary" onclick="adminLogin()">管理员登录</button>
+    <div style="margin-top:20px;">
+      <a href="javascript:void(0)" onclick="showSchoolLogin()" style="color:#3498db;font-size:14px;">返回学校填写</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 首页（登录后） ===== -->
+<div id="homeScreen" class="login-screen hidden">
+  <h1 id="welcomeText">欢迎使用</h1>
+  <p class="subtitle" id="homeSchoolName"></p>
+  <div style="margin-top:25px;">
+    <button class="btn-primary" onclick="startQuiz()">开始新评价</button>
+    <button class="btn-secondary" onclick="showSummary()" id="summaryBtn" style="display:none;">查看汇总数据</button>
+  </div>
+  <div id="adminImportArea" style="margin-top:15px;display:none;">
+    <button class="btn-secondary" onclick="document.getElementById('importFile').click()">导入学校数据</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+  </div>
+  <div id="exportArea" style="margin-top:15px;display:none;">
+    <button class="btn-secondary" onclick="exportData()">导出本校数据</button>
+  </div>
+  <div id="evalCountTip" style="margin-top:20px;color:#999;font-size:14px;"></div>
+  <div style="margin-top:30px;">
+    <button class="btn-secondary" onclick="logout()">退出登录</button>
+  </div>
+</div>
+
+<!-- ===== 答题页 ===== -->
+<div id="quizScreen" class="hidden">
+  <div class="progress-bar">
+    <div class="progress-info">
+      <span id="progressText">已答 0 / 55</span>
+      <span id="currentSection">A1 立德树人</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+  <div id="quizContent"></div>
+  <div class="nav-buttons">
+    <button class="btn-secondary" onclick="prevSection()">上一部分</button>
+    <button class="btn-primary" onclick="submitQuiz()" id="submitBtn" style="display:none">提交评价</button>
+    <button class="btn-secondary" onclick="nextSection()" id="nextBtn">下一部分</button>
+  </div>
+</div>
+
+<!-- ===== 单人结果页 ===== -->
+<div id="resultScreen" class="result-screen hidden">
+  <h2 style="margin-bottom:20px;color:#2c3e50;">评价结果报告</h2>
+  <div id="resultInfo" style="margin-bottom:20px;color:#666;font-size:14px;"></div>
+  <div class="result-summary">
+    <div class="score-label">综合得分（满分100分）</div>
+    <div class="total-score" id="totalScore">0</div>
+    <div class="grade" id="gradeText"></div>
+  </div>
+  <h3 class="section-title">各一级指标得分</h3>
+  <div id="sectionScores"></div>
+  <div class="analysis-box">
+    <h3>评价分析报告</h3>
+    <div id="analysisContent"></div>
+  </div>
+  <div style="text-align:center;margin-top:30px;padding-bottom:50px;">
+    <button class="btn-secondary no-print" onclick="window.print()">打印结果</button>
+    <button class="btn-primary no-print" onclick="goHome()">返回首页</button>
+  </div>
+</div>
+
+<!-- ===== 汇总页 ===== -->
+<div id="summaryScreen" class="summary-screen hidden">
+  <h2 style="margin-bottom:20px;color:#2c3e50;" id="summaryTitle">多人评价汇总</h2>
+  <div id="summaryInfo" style="margin-bottom:20px;color:#666;font-size:14px;"></div>
+  <div id="summaryContent"></div>
+  <div style="text-align:center;margin-top:30px;padding-bottom:50px;">
+    <button class="btn-secondary no-print" onclick="window.print()">打印汇总报告</button>
+    <button class="btn-danger no-print" onclick="clearMyData()">清空本校数据</button>
+    <button class="btn-primary no-print" onclick="goHome()">返回首页</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ===== 数据：55道题 =====
+const DATA = [
+  { aCode: "A1", aName: "立德树人与培养目标", aWeight: 14.20, bCode: "B1.1", bName: "立德树人", bWeight: 4.84,
+    questions: [
+      { cCode: "C1", text: "请您结合本校实际情况，评价立德树人根本任务的落实情况", weight: 4.84,
+        options: ["尚未开展：本校基本未开展立德树人相关工作","初步开展：仅个别育人环节有涉及，效果不明显","正常开展：有开展相关工作但不够系统，效果一般","较好落实：主要育人环节都有安排，有一定效果","全面落实：五育并举和思政教育贯穿教学全过程，有成熟做法和成果材料可查"] }
+    ]
+  },
+  { aCode: "A1", aName: "立德树人与培养目标", aWeight: 14.20, bCode: "B1.2", bName: "培养目标", bWeight: 4.52,
+    questions: [
+      { cCode: "C2", text: "请您评价本校职业技能训练目标的明确程度", weight: 1.60,
+        options: ["无目标：本校无明确的技能训练目标","目标模糊：目标笼统，与岗位要求脱节","基本明确：目标基本明确，但操作性不强","较明确：目标较清晰，基本可操作，与岗位有一定对接","非常明确：目标清晰具体、可量化，与岗位要求对接，并分解到各阶段教学计划"] },
+      { cCode: "C3", text: "请您评价本校生活适应能力培养目标的明确程度", weight: 1.54,
+        options: ["无目标：本校无生活适应培养目标","目标模糊：目标不清晰，未有效落实","基本明确：目标基本明确，但落实不够具体","较明确：目标较明确，基本落地执行","非常明确：生活适应目标具体明确，与学生实际相适切，纳入课程并分阶段落实"] },
+      { cCode: "C4", text: "请您评价本校培养目标对缺陷补偿与潜能开发的体现程度", weight: 1.38,
+        options: ["未体现：目标基本未体现缺陷补偿与潜能开发，也无相关措施","体现不足：目标体现不够，缺乏有效措施","有所体现：目标有一定体现，但措施不够具体","较充分：目标体现较充分，有相应措施并基本执行","充分体现：目标充分体现缺陷补偿与潜能开发，且有具体可操作的措施并落实到位"] }
+    ]
+  },
+  { aCode: "A1", aName: "立德树人与培养目标", aWeight: 14.20, bCode: "B1.3", bName: "规划与管理", bWeight: 4.84,
+    questions: [
+      { cCode: "C5", text: "请您评价本校职业教育工作纳入学校发展规划的情况", weight: 1.69,
+        options: ["未纳入：职教工作未纳入学校发展规划","流于形式：未正式纳入规划，或纳入但仅停留在纸面","基本纳入：有一般性安排","已纳入：纳入规划，有相应安排和年度计划","重点纳入：列入学校发展规划并单列重点，有专项计划、逐年推进、成效可见"] },
+      { cCode: "C6", text: "请您评价本校年度职业教育任务与责任分工的明晰程度", weight: 1.58,
+        options: ["无分工：本校无年度任务和责任分工","不清晰：任务笼统，责任不清","基本清晰：任务基本明确，但执行一般","较清晰：任务与分工较明确，基本能推进","非常清晰：年度任务明确、逐项分解到部门和责任人，权责清晰、按时完成"] },
+      { cCode: "C7", text: "请您评价本校职业教育质量监测与持续改进机制的建立情况", weight: 1.58,
+        options: ["无机制：本校无质量监测和改进机制","机制缺失：有框架但流于形式，未能运转","基本建立：有基本机制，但运行一般","较完善：机制较完善，能正常运转","闭环完善：建立了完整的监测—反馈—改进闭环，有数据支撑、持续改进、效果明显"] }
+    ]
+  },
+  { aCode: "A2", aName: "组织与制度保障", aWeight: 13.25, bCode: "B2.1", bName: "党的领导", bWeight: 2.87,
+    questions: [
+      { cCode: "C8", text: "请您评价党对本校职业教育工作的全面领导落实情况", weight: 2.87,
+        options: ["未落实：党组织对职教工作领导基本未落实","落实不到位：领导责任落实不到位","基本落实：有基本机制，落实一般","较健全：领导机制较健全，基本落实","全面落实：党组织全面领导职教工作，决策议事和保障机制健全、落到实处"] }
+    ]
+  },
+  { aCode: "A2", aName: "组织与制度保障", aWeight: 13.25, bCode: "B2.2", bName: "管理制度", bWeight: 2.68,
+    questions: [
+      { cCode: "C9", text: "请您评价本校职业教育专项管理与质量监控制度的完备程度", weight: 2.68,
+        options: ["无制度：本校无专项管理制度","制度缺失：制度不健全或执行不力","基本完备：有基本制度，执行一般","较完备：制度较完备，执行较好","健全完善：专项管理和质量监控制度健全完善，执行严格、覆盖全程"] }
+    ]
+  },
+  { aCode: "A2", aName: "组织与制度保障", aWeight: 13.25, bCode: "B2.3", bName: "经费保障", bWeight: 2.68,
+    questions: [
+      { cCode: "C10", text: "请您评价本校职业教育经费专款专用及投入稳定情况", weight: 2.68,
+        options: ["严重不足：经费未专款专用或严重不足","投入不足：经费有挪用或投入不足","基本稳定：基本做到专款专用，投入一般","较稳定：专款专用，投入基本稳定","稳定充足：经费专款专用、投入稳定充足，保障各项职教活动正常开展并有账可查"] }
+    ]
+  },
+  { aCode: "A3", aName: "课程建设", aWeight: 15.46, bCode: "B3.1", bName: "课程设置", bWeight: 4.14,
+    questions: [
+      { cCode: "C11", text: "请您评价本校公共基础课程与职业技能课程结构配置的合理程度", weight: 0.97,
+        options: ["严重失衡：两类课程结构严重失衡","不太合理：结构失衡，课时不足","基本合理：结构基本合理","较合理：结构较合理，基本落实","科学合理：两类课程比例结构科学合理，与培养目标匹配，课时落实充分"] },
+      { cCode: "C12", text: "请您评价本校课程设置与智力障碍学生认知特征的匹配程度", weight: 1.06,
+        options: ["完全不匹配：课程与学生认知水平差距很大","不太匹配：明显超出或脱离学生实际","基本适配：课程难度基本适配","较适配：较适配，基本符合学生实际","充分适配：课程内容和难度充分适配学生认知水平，个别化差异得到体现"] },
+      { cCode: "C13", text: "请您评价本校生活适应类课程的设置情况", weight: 1.06,
+        options: ["未设置：本校无生活适应类课程","形同虚设：虽有设置但未实际开展","基本设置：有设置，落实一般","较系统：设置较系统，基本落实","系统完善：系统设置生活适应类课程，内容贴近生活、课时充足、效果明显"] },
+      { cCode: "C14", text: "请您评价本校劳动教育与职业体验活动的开展情况", weight: 1.06,
+        options: ["未开展：本校未开展劳动教育和职业体验活动","偶尔开展：极少开展或流于形式","定期开展：有开展，但频次一般","较常态：活动较经常，覆盖面尚可","常态化：统筹规划、常态化开展，覆盖面广、学生参与充分"] }
+    ]
+  },
+  { aCode: "A3", aName: "课程建设", aWeight: 15.46, bCode: "B3.2", bName: "课程内容", bWeight: 4.14,
+    questions: [
+      { cCode: "C15", text: "请您评价本校课程内容与岗位典型工作任务的对接程度", weight: 1.33,
+        options: ["完全脱节：课程内容与岗位完全无关","对接不足：课程与岗位脱节","基本对接：有一定对接但不够紧密","较紧密：对接较紧密","精准对接：课程内容与岗位典型任务精准对接，真实项目、情境融入充分"] },
+      { cCode: "C16", text: "请您评价本校课程中岗位安全规范与劳动保护内容的纳入情况", weight: 1.49,
+        options: ["未纳入：课程中无安全规范和劳动保护内容","纳入不足：虽有提及但未实际落实","基本纳入：有纳入，落实一般","较系统：纳入较系统，基本落实","系统强化：安全规范和劳动保护内容系统纳入课程并强化训练，学生掌握到位"] },
+      { cCode: "C17", text: "请您评价本校技能方向设置与本地就业市场的匹配程度", weight: 1.33,
+        options: ["完全脱节：技能方向与就业市场完全脱节","匹配不足：方向设置脱离市场实际","基本匹配：有一定匹配度","较匹配：有调研，匹配度较好","高度匹配：基于本地岗位需求调研设置技能方向，与就业市场匹配度高、动态调整"] }
+    ]
+  },
+  { aCode: "A3", aName: "课程建设", aWeight: 15.46, bCode: "B3.3", bName: "课程思政", bWeight: 3.63,
+    questions: [
+      { cCode: "C18", text: "请您评价本校课程思政融入职业教育全过程的情况", weight: 3.63,
+        options: ["未融入：课程思政基本未融入教学","融入生硬：融入缺失或方式生硬","有一定融入：有部分融入但不够自然","较自然：融入较自然，基本到位","有机融入：思政元素自然融入各教学环节，育德与技能并重、效果明显"] }
+    ]
+  },
+  { aCode: "A3", aName: "课程建设", aWeight: 15.46, bCode: "B3.4", bName: "教材建设", bWeight: 3.55,
+    questions: [
+      { cCode: "C19", text: "请您评价本校适配培智学生的校本教材与实训手册开发情况", weight: 3.55,
+        options: ["未开发：本校无校本教材和实训手册","不适配：已开发但内容不适配学生实际","有基本材料：有简单的校本材料","较适用：有开发，基本适用","系统完善：系统开发了适配学生实际的校本教材和实训手册，内容适切、配套使用充分"] }
+    ]
+  },
+  { aCode: "A4", aName: "教学实施", aWeight: 15.46, bCode: "B4.1", bName: "教学方法", bWeight: 4.30,
+    questions: [
+      { cCode: "C20", text: "请您评价本校实操技能训练在教学中的强化程度", weight: 1.98,
+        options: ["未开展：实操训练基本未开展","训练不足：实操训练不足，多数学生未过关","有开展：有实操训练，达成一般","较强化：实操较强化，多数学生过关","人人过关：实操训练显著强化，分层推进、人人过关、达成度高"] },
+      { cCode: "C21", text: "请您评价本校多元教学方法（情境、项目、任务等）的运用情况", weight: 2.32,
+        options: ["方式单一：教学方式单一，无多元方法","运用不足：方法单一，脱离实际","有运用：有运用，但方式较单一","较多元：方法较多元，运用较好","综合运用：多元教学方法综合运用、针对性强、教学效果明显"] }
+    ]
+  },
+  { aCode: "A4", aName: "教学实施", aWeight: 15.46, bCode: "B4.2", bName: "个别化支持", bWeight: 3.69,
+    questions: [
+      { cCode: "C22", text: "请您评价本校个别化教育计划（IEP）中职业教育目标的载明与评估情况", weight: 1.85,
+        options: ["未载明：IEP中无职教目标，也未评估","落实不足：有载明但未实际评估","有载明：有载明，落实一般","较明确：载明较明确，落实较好","完善落实：IEP明确载明职教目标，逐人落实评估、动态调整、针对性强"] },
+      { cCode: "C23", text: "请您评价本校为学生提供适配辅助器具和操作支持的情况", weight: 1.85,
+        options: ["未提供：未提供任何适配辅助器具和支持","支持不足：缺乏适配支持","有基本配备：有简单配备","较适配：配备较适配，支持较好","充分支持：针对学生个体差异配备了适配辅具和操作支持，支持充分、使用有效"] }
+    ]
+  },
+  { aCode: "A4", aName: "教学实施", aWeight: 15.46, bCode: "B4.3", bName: "康复与心理支持", bWeight: 3.69,
+    questions: [
+      { cCode: "C24", text: "请您评价本校康复训练与教学、生活实践的结合情况", weight: 1.74,
+        options: ["未结合：康复训练未与教学、生活结合","结合不足：结合缺失或流于形式","有结合：有结合，开展一般","结合较好：结合较好，基本常态化","有机结合：康复训练与教学、生活实践有机结合，常态化开展、效果明显"] },
+      { cCode: "C25", text: "请您评价本校学生心理健康与情绪行为问题的关注支持情况", weight: 1.95,
+        options: ["无人关注：学生心理和情绪问题无人关注","关注不足：缺乏及时关注与支持","有基本关注：有一定关注","较及时：关注较及时，支持较好","机制完善：建立了及时关注和支持机制，个案干预有效、转介顺畅、效果明显"] }
+    ]
+  },
+  { aCode: "A4", aName: "教学实施", aWeight: 15.46, bCode: "B4.4", bName: "教学评价", bWeight: 3.78,
+    questions: [
+      { cCode: "C26", text: "请您评价本校过程性评价与终结性评价的结合实施情况", weight: 1.27,
+        options: ["无评价：无过程性和终结性评价","评价单一：评价方式单一或流于形式","有结合：有实施，结合一般","结合较好：结合较好，实施较规范","有机结合：两类评价有机结合、覆盖全程、结果用于改进教学"] },
+      { cCode: "C27", text: "请您评价本校技能实操考核在整体考核中的占比合理性", weight: 1.24,
+        options: ["无实操考核：无实操考核或占比完全不合理","占比失衡：占比失衡或考核失真","基本合理：占比基本合理","较合理：占比较合理","科学合理：实操考核占比设置科学合理，真实反映学生技能水平"] },
+      { cCode: "C28", text: "请您评价本校多元主体共同参与教学评价机制的建立情况", weight: 1.27,
+        options: ["单一主体：仅教师单方面评价，无多元参与","主体单一：评价主体较单一","有基本参与：有部分主体参与","较充分：多元参与较充分","机制健全：学校、教师、学生、家长及企业等多元主体共同参与，机制健全、结果有效运用"] }
+    ]
+  },
+  { aCode: "A5", aName: "师资队伍", aWeight: 14.20, bCode: "B5.1", bName: "师德师风", bWeight: 4.66,
+    questions: [
+      { cCode: "C29", text: "请您评价本校教师师德师风建设及关爱特殊学生的情况", weight: 4.66,
+        options: ["存在问题：师德师风建设缺失或有严重问题","有待加强：存在师德问题或关爱不足","基本扎实：建设基本扎实","较扎实：建设较扎实，关爱较好","扎实浓厚：师德师风建设扎实，全员关爱特殊学生、育人氛围浓厚、无违规情形"] }
+    ]
+  },
+  { aCode: "A5", aName: "师资队伍", aWeight: 14.20, bCode: "B5.2", bName: "师资配置", bWeight: 4.46,
+    questions: [
+      { cCode: "C30", text: "请您评价本校职业教育专任教师数量满足办学需求的程度", weight: 1.13,
+        options: ["严重不足：专任教师严重不足，影响正常教学","数量不足：数量偏少，部分课程难以开设","基本满足：数量基本够用","较充足：数量较充足，基本满足","充足合理：专任教师数量充足、结构合理，完全满足教学需求"] },
+      { cCode: "C31", text: "请您评价本校双师型教师（兼具特教与职教背景）的配备达标情况", weight: 1.11,
+        options: ["无配备：无双师型教师","配备不足：缺乏双师型教师","有配备：有配备，但占比不足","接近达标：占比接近达标，作用较好","达标充分：双师型教师占比达标、素质过硬，作用发挥充分"] },
+      { cCode: "C32", text: "请您评价本校按需聘请企业兼职实训指导教师的情况", weight: 1.11,
+        options: ["未聘请：无企业兼职指导教师","形同虚设：虽有聘请但指导不到位","有聘请：有聘请，频次一般","较及时：聘请较及时，指导较好","稳定有效：按需聘请了企业兼职指导教师，来源稳定、指导有效"] },
+      { cCode: "C33", text: "请您评价本校教师定期下企业实践的情况", weight: 1.11,
+        options: ["无实践经历：教师从未下企业实践","实践不足：缺乏企业实践经验","有实践：偶尔下企业实践，频次一般","较常态：实践较经常，经验较好","形成制度：教师定期下企业实践形成制度，具备真实岗位经验并反哺教学"] }
+    ]
+  },
+  { aCode: "A5", aName: "师资队伍", aWeight: 14.20, bCode: "B5.3", bName: "教师能力与发展", bWeight: 5.08,
+    questions: [
+      { cCode: "C34", text: "请您评价本校教师掌握特教方法与职教实操技能的情况", weight: 1.08,
+        options: ["基本不掌握：教师不掌握特教方法和实操技能","掌握不足：掌握不够，影响教学效果","基本掌握：基本掌握但不够熟练","掌握较好：掌握较好，运用较熟","扎实娴熟：教师普遍掌握特教方法和实操技能，专业能力扎实、运用娴熟"] },
+      { cCode: "C35", text: "请您评价本校教师实训指导与行为支持辅导的能力水平", weight: 1.08,
+        options: ["不具备：教师不具备相关能力","能力不足：能力有待提升","具备基本能力：能开展基础指导","能力较强：能力较强，辅导较好","能力突出：教师实训指导和行为支持能力突出，辅导针对性强、效果明显"] },
+      { cCode: "C36", text: "请您评价本校教师生涯规划与就业转衔指导的能力水平", weight: 0.97,
+        options: ["不具备：教师无相关指导能力","能力缺乏：能力有待培养","具备基本能力：能开展简单指导","能力较好：能力较好，能有效开展指导","系统能力：教师具备系统的生涯规划和就业转衔指导能力，指导效果明显"] },
+      { cCode: "C37", text: "请您评价本校教师掌握康复辅助实操指导方法的情况", weight: 0.97,
+        options: ["不掌握：教师不掌握康复辅助指导方法","知识不足：缺乏相关知识和技能","基本掌握：基本了解方法","掌握较好：掌握较好，基本会用","熟练运用：教师系统掌握康复辅助实操指导方法，运用熟练、效果明显"] },
+      { cCode: "C38", text: "请您评价本校职业教育专项业务培训与主题教研的常态化程度", weight: 0.99,
+        options: ["未开展：无专项培训和主题教研","极少开展：偶有开展但不成体系","有开展：有开展，频次一般","较常态：开展较经常，效果较好","成体系常态化：专项培训和主题教研常态化、成体系，针对性强、教师受益明显"] }
+    ]
+  },
+  { aCode: "A6", aName: "校企合作与实训条件", aWeight: 13.25, bCode: "B6.1", bName: "校企合作", bWeight: 4.56,
+    questions: [
+      { cCode: "C39", text: "请您评价本校合作企业的稳定性及岗位适配情况", weight: 1.14,
+        options: ["无合作：无稳定合作企业","不稳定：合作不稳定或岗位不适配","有基本合作：有合作但深度不够","较稳定：企业较稳定，岗位较适配","深入合作：合作企业稳定、岗位适配度高、接纳意愿强，合作深入"] },
+      { cCode: "C40", text: "请您评价本校校企协同制定学生实训实施方案的情况", weight: 1.14,
+        options: ["无方案：无校企协同实训方案","缺乏协同：未形成有效协同，方案不完善","有协同：有协同，但方案较一般","协同较充分：协同较充分，方案可行","深度协同：校企深度协同制定实训方案，针对性强、落实到位"] },
+      { cCode: "C41", text: "请您评价企业参与本校课程开发、教学与评价等环节的程度", weight: 1.14,
+        options: ["未参与：企业完全未参与","参与形式化：参与流于形式","有参与：有参与，但深度一般","参与较实质：参与较实质，作用较好","全程参与：企业实质性参与课程、教学、评价全过程，作用显著"] },
+      { cCode: "C42", text: "请您评价本校岗位实习到就业衔接通道的建立情况", weight: 1.14,
+        options: ["无通道：实习与就业之间无衔接","衔接断裂：衔接不畅，缺乏过渡","有基本衔接：有初步衔接","衔接较顺畅：衔接较顺畅","通道畅通：建立了顺畅的实习—就业衔接通道，衔接有序、就业转化率高"] }
+    ]
+  },
+  { aCode: "A6", aName: "校企合作与实训条件", aWeight: 13.25, bCode: "B6.2", bName: "实训条件", bWeight: 4.56,
+    questions: [
+      { cCode: "C43", text: "请您评价本校校内实训工位数量满足日常教学的程度", weight: 1.46,
+        options: ["严重不足：工位严重不足，无法开展实训","不足：工位偏少，影响正常实训","基本满足：工位数量基本够用","较充足：数量较充足，基本满足","充足完善：实训工位数量充足、设备完善，完全满足教学"] },
+      { cCode: "C44", text: "请您评价本校实训安全管理与应急处置机制的建立情况", weight: 1.64,
+        options: ["无机制：无安全管理机制，实训环境存在隐患","有隐患：机制不健全或存在安全隐患","有基本机制：有基本的安全管理制度","机制较健全：机制较健全，执行较好","健全无隐患：安全管理和应急处置机制健全、执行严格，实训环境安全无隐患"] },
+      { cCode: "C45", text: "请您评价本校学生跟岗实践与岗位实习分层常态化开展的情况", weight: 1.46,
+        options: ["未开展：未开展跟岗实践和岗位实习","开展不足：极少开展或未形成分层","有开展：有开展，但频次一般","较常态：分层较合理，开展较经常","分层常态化：跟岗实践和岗位实习分层设计、常态化开展，覆盖面广、效果明显"] }
+    ]
+  },
+  { aCode: "A7", aName: "学生发展与成效", aWeight: 14.20, bCode: "B7.1", bName: "职业技能与就业", bWeight: 4.48,
+    questions: [
+      { cCode: "C46", text: "请您评价本校学生掌握对应岗位基础实操技能的情况", weight: 1.08,
+        options: ["多数未掌握：绝大多数学生未掌握岗位技能","部分未掌握：多数学生掌握不熟练","部分掌握：约一半学生基本掌握","多数掌握：多数学生掌握，技能较好","扎实掌握：绝大多数学生掌握了对应岗位基础实操技能，技能扎实、可独立操作"] },
+      { cCode: "C47", text: "请您评价本校学生形成基本劳动习惯与遵守岗位行为规范的情况", weight: 1.25,
+        options: ["意识薄弱：学生基本无劳动习惯和岗位规范意识","习惯薄弱：习惯和规范意识有待加强","部分具备：部分学生基本具备","多数具备：多数学生具备，习惯较好","普遍形成：学生普遍形成良好劳动习惯、自觉遵守岗位规范"] },
+      { cCode: "C48", text: "请您评价本校支持性/庇护性就业安置的落实情况", weight: 1.08,
+        options: ["未落实：未开展支持性/庇护性就业安置工作","落实不足：安置渠道单一，覆盖面小","有基本落实：有安置但机制不够完善","落实较好：落实较好，渠道较多","机制健全：支持性/庇护性就业安置有效落实，机制健全、渠道多元、安置率高"] },
+      { cCode: "C49", text: "请您评价本校离校学生就业与生活跟踪服务机制的建立情况", weight: 1.08,
+        options: ["无机制：无离校学生跟踪服务机制","服务不足：缺乏持续跟踪服务","有基本跟进：有初步跟进","机制较完善：机制较完善，跟进较好","系统完善：建立了系统的离校跟踪服务机制，持续跟进、反馈及时、服务有效"] }
+    ]
+  },
+  { aCode: "A7", aName: "学生发展与成效", aWeight: 14.20, bCode: "B7.2", bName: "生活适应与社会融入", bWeight: 4.48,
+    questions: [
+      { cCode: "C50", text: "请您评价本校学生具备基本生活自理能力的情况", weight: 1.49,
+        options: ["能力不足：学生基本不具备生活自理能力","自理较弱：自理能力明显不足","部分具备：部分学生具备基本自理能力","多数具备：多数学生具备，能力较好","独立性强：学生普遍具备良好生活自理能力，独立性强、效果明显"] },
+      { cCode: "C51", text: "请您评价本校学生社会适应能力改善及融入家庭社区的情况", weight: 1.49,
+        options: ["无改善：学生社会适应能力无明显改善","改善有限：改善不明显","有改善：有一定改善，融入一般","改善较明显：改善较明显，融入较好","改善显著：学生社会适应能力明显改善，家庭和社区融入度高"] },
+      { cCode: "C52", text: "请您评价本校学生生活质量改善及劳动成就感获得情况", weight: 1.49,
+        options: ["无改善：学生生活质量无改善，缺乏劳动成就感","改善有限：改善不明显","有改善：有一定改善","改善较明显：改善较明显，自信提升","改善显著：学生生活质量明显改善，普遍获得劳动成就感和自信"] }
+    ]
+  },
+  { aCode: "A7", aName: "学生发展与成效", aWeight: 14.20, bCode: "B7.3", bName: "综合素养与满意度", bWeight: 5.23,
+    questions: [
+      { cCode: "C53", text: "请您评价本校学生思想道德素养的总体情况", weight: 1.93,
+        options: ["有待加强：学生思想道德素养明显不足","一般：素养有待提升","基本良好：基本达到良好水平","较好：素养较好","优良：学生思想道德素养良好，遵规守纪、文明礼貌、积极向上"] },
+      { cCode: "C54", text: "请您评价本校学生缺陷补偿与个人潜能发展的情况", weight: 1.65,
+        options: ["未补偿：学生缺陷未获补偿，潜能未发展","补偿不足：补偿效果有限，发展缓慢","有一定补偿：有初步补偿","补偿较有效：补偿较有效，进步较好","充分发展：学生缺陷得到有效补偿，潜能充分发展、进步显著"] },
+      { cCode: "C55", text: "请您评价家长对本校职业教育培养工作的满意度情况", weight: 1.65,
+        options: ["未测评：未开展家长满意度测评","满意度偏低：有测评但满意度不高","有基本测评：有开展测评","满意度较好：有测评，家长满意度较好","满意度高：建立了科学的满意度测评机制，家长满意度高、反馈积极"] }
+    ]
+  }
+];
+
+// ===== 账号配置 =====
+const ADMIN_ACCOUNT = { username: "admin", password: "admin123" };
+const ACCOUNT_KEY = 'peizhi_eval_accounts';
+
+// 状态
+let answers = {};
+let currentSection = 0;
+const totalQuestions = DATA.reduce((s, b) => s + b.questions.length, 0);
+const STORAGE_KEY = 'peizhi_eval_multi_v2';
+let currentUser = null; // { type: 'school'|'admin', name: '学校名称' }
+
+// ===== 存储 =====
+function getStorage() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { schools: {} }; }
+  catch(e) { return { schools: {} }; }
+}
+function setStorage(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+
+function getAccounts() {
+  try { return JSON.parse(localStorage.getItem(ACCOUNT_KEY)) || {}; }
+  catch(e) { return {}; }
+}
+function setAccounts(accs) { localStorage.setItem(ACCOUNT_KEY, JSON.stringify(accs)); }
+
+function getCurrentSchoolData() {
+  const data = getStorage();
+  const school = currentUser.name;
+  if (!data.schools[school]) data.schools[school] = { records: [] };
+  return data.schools[school];
+}
+
+function saveCurrentSchoolData(schoolData) {
+  const data = getStorage();
+  data.schools[currentUser.name] = schoolData;
+  setStorage(data);
+}
+
+// ===== 工具 =====
+function calcScores(ans) {
+  const aScores = {};
+  let totalScore = 0;
+  for (const b of DATA) {
+    if (!aScores[b.aCode]) aScores[b.aCode] = { score: 0, maxScore: 0, name: b.aName };
+    for (const q of b.questions) {
+      const score = ans[q.cCode] || 0;
+      const weighted = score / 5 * q.weight;
+      aScores[b.aCode].score += weighted;
+      aScores[b.aCode].maxScore += q.weight;
+      totalScore += weighted;
+    }
+  }
+  return { totalScore, aScores };
+}
+
+function getGrade(percent) {
+  if (percent >= 90) return '优秀';
+  if (percent >= 80) return '良好';
+  if (percent >= 70) return '中等';
+  if (percent >= 60) return '合格';
+  return '需改进';
+}
+
+// 各板块专业分析话术库
+const A_ANALYSIS = {
+  "A1": { strength: "说明学校在办学方向上把握准确，德育首位意识强，培养目标定位清晰且与培智学生实际相适切，是学校职教工作的根本优势所在。", weakness: "反映学校在办学方向、目标定位或顶层设计上存在偏差，需重新审视培养目标是否贴合智障学生的就业与生活需求，德育渗透是否到位。", advice: "建议组织管理层和骨干教师专题研讨，重新厘定培养目标；将思政教育和德育目标分解到每门课程、每节课；建立目标达成度年度评估机制。" },
+  "A2": { strength: "说明学校领导重视职教工作，制度健全、经费有保障，为职教开展提供了坚实的组织基础和制度环境。", weakness: '反映学校在组织领导、制度建设或经费投入上存在短板，可能存在职教工作"说起来重要、做起来次要"的问题，缺乏刚性保障。', advice: "建议将职教工作纳入学校年度重点任务清单，校长亲自抓；完善专项管理制度并严格考核；确保职教经费专款专用、逐年增长。" },
+  "A3": { strength: "说明学校课程体系建设较为成熟，课程设置与学生特点和岗位需求对接较好，是学校教学质量的核心支撑。", weakness: "反映课程体系存在结构性问题，可能存在课程与学生实际脱节、与岗位需求脱节、教材不适配等问题，直接影响教学质量。", advice: "建议开展岗位需求调研，重构课程体系；加大校本教材开发力度；增加劳动教育和职业体验课时；推进课程思政自然融入。" },
+  "A4": { strength: "说明课堂教学和实训实施质量较高，个别化支持到位，教学评价科学，是学生技能获得的关键保障。", weakness: "反映教学过程存在实施不到位的问题，可能存在实操训练不足、个别化教育计划流于形式、康复与教学脱节等问题。", advice: '建议增加实操训练课时占比，推行"人人过关"制度；完善IEP职教目标的逐人评估；建立多元主体参与的教学评价机制。' },
+  "A5": { strength: "说明教师队伍师德师风好、数量充足、能力过硬，是学校职教质量最核心的人力支撑。", weakness: "反映师资队伍存在结构性短板，可能存在双师型教师不足、教师职教能力欠缺、培训不够等问题，是制约质量提升的关键瓶颈。", advice: "建议加大双师型教师培养力度，定期下企业实践；引进企业兼职实训指导教师；建立常态化专项培训和教研机制。" },
+  "A6": { strength: "说明学校校企合作深入、实训条件完善，为学生提供了真实的职业体验和实践环境，是职教特色的重要体现。", weakness: "反映校企合作浮于表面、实训条件不足，可能存在合作企业不稳定、工位不够、安全管理有隐患等问题。", advice: "建议拓展稳定的合作企业资源，深度参与课程开发；加大实训工位和设备投入；完善实训安全管理和应急处置机制。" },
+  "A7": { strength: "说明学生培养成效显著，学生技能掌握好、适应能力强、家长满意度高，是学校办学成果的直接体现。", weakness: "反映学生培养成效不理想，可能存在学生技能掌握不牢、就业安置率低、社会融入困难等问题，需从培养源头反思改进。", advice: "建议建立学生就业跟踪服务机制；加强生活适应和社会融入训练；开展家长满意度调查，以评促改。" }
+};
+
+// ===== 登录 =====
+function showAdminLogin() {
+  document.getElementById('schoolLoginArea').style.display = 'none';
+  document.getElementById('adminLoginArea').style.display = 'block';
+  document.getElementById('adminPassword').focus();
+}
+function showSchoolLogin() {
+  document.getElementById('adminLoginArea').style.display = 'none';
+  document.getElementById('schoolLoginArea').style.display = 'block';
+  document.getElementById('loginSchool').focus();
+}
+
+function schoolLogin() {
+  const schoolName = document.getElementById('loginSchool').value.trim();
+  if (!schoolName) { alert('请输入学校名称'); return; }
+  currentUser = { type: 'school', name: schoolName };
+  showHome();
+}
+
+function adminLogin() {
+  const pwd = document.getElementById('adminPassword').value.trim();
+  if (pwd !== ADMIN_ACCOUNT.password) { alert('密码错误'); return; }
+  currentUser = { type: 'admin', name: '管理员' };
+  showHome();
+}
+
+function showHome() {
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('homeScreen').classList.remove('hidden');
+  document.getElementById('welcomeText').textContent = currentUser.type === 'admin' ? '管理员控制台' : '欢迎使用';
+  document.getElementById('homeSchoolName').textContent = currentUser.name;
+  // 管理员显示导入按钮和汇总按钮，学校用户只显示导出按钮
+  document.getElementById('adminImportArea').style.display = currentUser.type === 'admin' ? 'block' : 'none';
+  document.getElementById('summaryBtn').style.display = currentUser.type === 'admin' ? 'inline-block' : 'none';
+  document.getElementById('exportArea').style.display = currentUser.type === 'school' ? 'block' : 'none';
+  refreshHomeTip();
+}
+
+function refreshHomeTip() {
+  const tip = document.getElementById('evalCountTip');
+  if (currentUser.type === 'admin') {
+    const data = getStorage();
+    const schools = Object.keys(data.schools).filter(s => data.schools[s].records.length > 0);
+    tip.textContent = `已有 ${schools.length} 所学校提交评价`;
+  } else {
+    const sd = getCurrentSchoolData();
+    tip.textContent = `本校已收集 ${sd.records.length} 份评价`;
+  }
+}
+
+function logout() {
+  currentUser = null;
+  location.reload();
+}
+
+// ===== 导出/导入 =====
+function exportData() {
+  const data = getStorage();
+  const schoolData = data.schools[currentUser.name];
+  if (!schoolData || schoolData.records.length === 0) { alert('暂无数据可导出'); return; }
+  const exportObj = {
+    schoolName: currentUser.name,
+    exportTime: new Date().toLocaleString(),
+    records: schoolData.records
+  };
+  const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${currentUser.name}_评价数据.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  alert('数据已导出，请将文件发给管理员');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const importObj = JSON.parse(e.target.result);
+      if (!importObj.schoolName || !importObj.records) { alert('文件格式不正确'); return; }
+      const data = getStorage();
+      if (!data.schools[importObj.schoolName]) data.schools[importObj.schoolName] = { records: [] };
+      // 合并记录，按id去重
+      const existingIds = new Set(data.schools[importObj.schoolName].records.map(r => r.id));
+      let added = 0;
+      for (const r of importObj.records) {
+        if (!existingIds.has(r.id)) {
+          data.schools[importObj.schoolName].records.push(r);
+          added++;
+        }
+      }
+      setStorage(data);
+      alert(`成功导入「${importObj.schoolName}」${added} 份评价`);
+      refreshHomeTip();
+    } catch(err) {
+      alert('导入失败：文件格式错误');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ===== 答题 =====
+function startQuiz() {
+  answers = {};
+  currentSection = 0;
+  document.getElementById('homeScreen').classList.add('hidden');
+  document.getElementById('quizScreen').classList.remove('hidden');
+  renderQuiz();
+}
+
+function renderQuiz() {
+  const b = DATA[currentSection];
+  const container = document.getElementById('quizContent');
+  let html = `<div class="section-title">${b.aCode} ${b.aName}</div>`;
+  html += `<div class="subsection-title">${b.bCode} ${b.bName}</div>`;
+  b.questions.forEach((q) => {
+    const globalIdx = getGlobalIndex(q.cCode);
+    html += `<div class="question-card" id="card-${q.cCode}">`;
+    html += `<div class="question-text"><span class="question-num">${globalIdx+1}</span>${q.text}</div><div class="options">`;
+    q.options.forEach((opt, oi) => {
+      const score = oi + 1;
+      const selected = answers[q.cCode] === score ? 'selected' : '';
+      html += `<div class="option-item ${selected}" onclick="selectOption('${q.cCode}', ${score}, this)"><div class="option-radio"></div><div class="option-label"><span class="option-score">${score}分</span>${opt}</div></div>`;
+    });
+    html += `</div></div>`;
+  });
+  container.innerHTML = html;
+  updateProgress();
+  updateNavButtons();
+}
+
+function getGlobalIndex(cCode) {
+  let count = 0;
+  for (const b of DATA) for (const q of b.questions) { if (q.cCode === cCode) return count; count++; }
+  return -1;
+}
+
+function selectOption(cCode, score, el) {
+  answers[cCode] = score;
+  const card = document.getElementById('card-' + cCode);
+  card.querySelectorAll('.option-item').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+  updateProgress();
+}
+
+function updateProgress() {
+  const answered = Object.keys(answers).length;
+  document.getElementById('progressText').textContent = `已答 ${answered} / ${totalQuestions}`;
+  document.getElementById('progressFill').style.width = (answered / totalQuestions * 100) + '%';
+  const b = DATA[currentSection];
+  document.getElementById('currentSection').textContent = `${b.aCode} ${b.aName} - ${b.bCode}`;
+}
+
+function updateNavButtons() {
+  document.getElementById('nextBtn').style.display = currentSection === DATA.length - 1 ? 'none' : 'block';
+  document.getElementById('submitBtn').style.display = currentSection === DATA.length - 1 ? 'block' : 'none';
+  document.getElementById('nextBtn').textContent = currentSection === DATA.length - 1 ? '提交评价' : '下一部分';
+}
+
+function nextSection() {
+  // 检查当前板块是否都答完
+  const b = DATA[currentSection];
+  const unanswered = b.questions.filter(q => !answers[q.cCode]);
+  if (unanswered.length > 0) {
+    alert(`本板块还有 ${unanswered.length} 道题未作答，请全部答完再跳转`);
+    return;
+  }
+  if (currentSection < DATA.length - 1) { currentSection++; renderQuiz(); window.scrollTo(0,0); }
+  else submitQuiz();
+}
+function prevSection() {
+  if (currentSection > 0) { currentSection--; renderQuiz(); window.scrollTo(0,0); }
+}
+
+function submitQuiz() {
+  const answered = Object.keys(answers).length;
+  if (answered < totalQuestions) {
+    if (!confirm(`还有 ${totalQuestions - answered} 道题未作答，确定提交吗？`)) return;
+  }
+  const sd = getCurrentSchoolData();
+  const { totalScore, aScores } = calcScores(answers);
+  const record = {
+    id: sd.records.length + 1,
+    time: new Date().toLocaleString(),
+    answers: { ...answers },
+    totalScore: totalScore,
+    aScores: aScores
+  };
+  showResult(record);
+  try {
+    sd.records.push(record);
+    saveCurrentSchoolData(sd);
+  } catch(e) {
+    console.warn('本地存储失败', e);
+  }
+}
+
+// ===== 单人结果页 =====
+function showResult(record) {
+  document.getElementById('quizScreen').classList.add('hidden');
+  document.getElementById('resultScreen').classList.remove('hidden');
+  document.getElementById('resultInfo').innerHTML = `学校：${currentUser.name}｜第 ${record.id} 份评价｜时间：${record.time}`;
+  document.getElementById('totalScore').textContent = record.totalScore.toFixed(1);
+  const percent = record.totalScore;
+  const grade = getGrade(percent);
+  document.getElementById('gradeText').textContent = `等级：${grade}（${percent.toFixed(0)}%）`;
+
+  let sectionHtml = '';
+  for (const aCode in record.aScores) {
+    const a = record.aScores[aCode];
+    const aPercent = a.score / a.maxScore * 100;
+    let color = aPercent >= 80 ? '#27ae60' : aPercent >= 60 ? '#f39c12' : '#e74c3c';
+    sectionHtml += `<div class="section-score-card"><div class="section-score-header"><span class="section-score-name">${aCode} ${a.name}</span><span class="section-score-value" style="color:${color}">${a.score.toFixed(1)} / ${a.maxScore.toFixed(1)}</span></div><div class="score-bar"><div class="score-bar-fill" style="width:${aPercent}%;background:${color}"></div></div></div>`;
+  }
+  document.getElementById('sectionScores').innerHTML = sectionHtml;
+  generateAnalysis(record.aScores, record.totalScore, grade);
+  window.scrollTo(0,0);
+}
+
+function generateAnalysis(aScores, totalScore, grade) {
+  const sorted = Object.entries(aScores).sort((a, b) => b[1].score/b[1].maxScore - a[1].score/a[1].maxScore);
+  let html = `<p><strong>总体评价：</strong>综合得分 ${totalScore.toFixed(1)} 分，等级为「${grade}」。`;
+  if (grade === '优秀') html += '学校职教工作各方面表现突出。';
+  else if (grade === '良好') html += '整体开展较好，个别板块仍有提升空间。';
+  else if (grade === '中等') html += '基本达标，部分板块需重点加强。';
+  else if (grade === '合格') html += '基本合格，但多项指标存在明显短板。';
+  else html += '存在较多不足，需系统性整改提升。';
+  html += `</p>`;
+  html += `<p style="margin-top:12px;"><strong>优势：</strong>${sorted[0][0]} ${sorted[0][1].name}（得分率 ${(sorted[0][1].score/sorted[0][1].maxScore*100).toFixed(0)}%）</p>`;
+  html += `<p style="margin-top:8px;"><strong>待改进：</strong>${sorted[sorted.length-1][0]} ${sorted[sorted.length-1][1].name}（得分率 ${(sorted[sorted.length-1][1].score/sorted[sorted.length-1][1].maxScore*100).toFixed(0)}%）</p>`;
+  document.getElementById('analysisContent').innerHTML = html;
+}
+
+// ===== 汇总页 =====
+function showSummary() {
+  document.getElementById('homeScreen').classList.add('hidden');
+  document.getElementById('summaryScreen').classList.remove('hidden');
+  if (currentUser.type === 'admin') renderAdminSummary();
+  else renderSchoolSummary();
+  window.scrollTo(0,0);
+}
+
+function renderSchoolSummary() {
+  const sd = getCurrentSchoolData();
+  const records = sd.records;
+  document.getElementById('summaryTitle').textContent = `${currentUser.name} - 评价汇总`;
+  document.getElementById('summaryInfo').innerHTML = `共 ${records.length} 份评价`;
+
+  if (records.length === 0) {
+    document.getElementById('summaryContent').innerHTML = '<div class="empty-tip">暂无评价数据，请先完成评价</div>';
+    return;
+  }
+  document.getElementById('summaryContent').innerHTML = renderSummaryTable(records, currentUser.name);
+}
+
+function renderAdminSummary() {
+  const data = getStorage();
+  const schools = Object.keys(data.schools).filter(s => data.schools[s].records.length > 0);
+  document.getElementById('summaryTitle').textContent = '所有学校评价对比';
+  document.getElementById('summaryInfo').innerHTML = `共 ${schools.length} 所学校已提交评价`;
+
+  if (schools.length === 0) {
+    document.getElementById('summaryContent').innerHTML = '<div class="empty-tip">暂无学校提交评价数据</div>';
+    return;
+  }
+
+  // 学校对比总表
+  let html = '<h3 class="section-title">学校得分对比总览</h3>';
+  html += '<table class="summary-table"><thead><tr><th>学校名称</th><th>评价人数</th><th>平均总分</th><th>等级</th></tr></thead><tbody>';
+  const schoolAvgList = [];
+  for (const s of schools) {
+    const recs = data.schools[s].records;
+    const avg = recs.reduce((sum, r) => sum + r.totalScore, 0) / recs.length;
+    schoolAvgList.push({ name: s, count: recs.length, avg: avg });
+  }
+  schoolAvgList.sort((a, b) => b.avg - a.avg);
+  for (const s of schoolAvgList) {
+    html += `<tr><td class="name-col">${s.name}</td><td>${s.count}</td><td style="font-weight:700;color:#3498db">${s.avg.toFixed(1)}</td><td>${getGrade(s.avg)}</td></tr>`;
+  }
+  html += '</tbody></table>';
+
+  // 学校标签切换
+  html += '<h3 class="section-title" style="margin-top:30px;">查看各校详细数据</h3>';
+  html += '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;">';
+  schoolAvgList.forEach((s, i) => {
+    html += `<button class="btn-secondary school-tab ${i===0?'active':''}" onclick="switchSchoolTab(${i})" data-idx="${i}">${s.name}</button>`;
+  });
+  html += '</div>';
+
+  // 每所学校的详细数据（默认显示第一个）
+  schoolAvgList.forEach((s, i) => {
+    html += `<div class="school-detail" id="schoolDetail${i}" style="${i===0?'':'display:none;'}">`;
+    html += `<h3 style="margin-bottom:15px;color:#2c3e50;">${s.name}（${s.count}人评价，平均${s.avg.toFixed(1)}分）</h3>`;
+    html += renderSummaryTable(data.schools[s.name].records, s.name, '');
+    html += '</div>';
+  });
+
+  document.getElementById('summaryContent').innerHTML = html;
+}
+
+function switchSchoolTab(idx) {
+  // 切换标签样式
+  document.querySelectorAll('.school-tab').forEach((tab, i) => {
+    tab.classList.toggle('active', i === idx);
+  });
+  // 切换显示内容
+  document.querySelectorAll('.school-detail').forEach((detail, i) => {
+    detail.style.display = i === idx ? 'block' : 'none';
+  });
+}
+
+function renderSummaryTable(records, schoolName, existingHtml) {
+  const aCodes = Object.keys(records[0].aScores);
+  let html = existingHtml || '';
+
+  html += '<table class="summary-table"><thead><tr><th>序号</th>';
+  for (const aCode of aCodes) {
+    html += `<th>${aCode}</th>`;
+  }
+  html += '<th>总分</th><th>等级</th></tr></thead><tbody>';
+
+  const avgScores = {};
+  for (const aCode of aCodes) avgScores[aCode] = { sum: 0, maxSum: 0 };
+  let totalSum = 0;
+
+  for (const r of records) {
+    html += `<tr><td class="name-col">第${r.id}份</td>`;
+    for (const aCode of aCodes) {
+      const a = r.aScores[aCode];
+      const pct = (a.score / a.maxScore * 100).toFixed(0);
+      let color = a.score/a.maxScore >= 0.8 ? '#27ae60' : a.score/a.maxScore >= 0.6 ? '#f39c12' : '#e74c3c';
+      html += `<td style="color:${color};font-weight:500">${a.score.toFixed(1)}<br><span style="font-size:11px;color:#999">${pct}%</span></td>`;
+      avgScores[aCode].sum += a.score;
+      avgScores[aCode].maxSum += a.maxScore;
+    }
+    totalSum += r.totalScore;
+    html += `<td style="font-weight:700;color:#3498db">${r.totalScore.toFixed(1)}</td><td>${getGrade(r.totalScore)}</td></tr>`;
+  }
+
+  const avgTotal = totalSum / records.length;
+  html += `<tr class="avg-row"><td class="name-col">平均分</td>`;
+  for (const aCode of aCodes) {
+    const avg = avgScores[aCode].sum / records.length;
+    const max = avgScores[aCode].maxSum / records.length;
+    const pct = (avg / max * 100).toFixed(0);
+    html += `<td>${avg.toFixed(1)}<br><span style="font-size:11px;color:#666">${pct}%</span></td>`;
+  }
+  html += `<td style="color:#2c3e50">${avgTotal.toFixed(1)}</td><td>${getGrade(avgTotal)}</td></tr>`;
+  html += '</tbody></table>';
+
+  // 专业分析（只有学校自己的汇总页才显示）
+  if (!existingHtml) {
+    const avgList = Object.entries(avgScores).map(([k, v]) => ({
+      code: k, name: records[0].aScores[k].name,
+      avgScore: v.sum / records.length, maxScore: v.maxSum / records.length
+    })).sort((a, b) => b.avgScore/b.maxScore - a.avgScore/a.maxScore);
+
+    const avgGrade = getGrade(avgTotal);
+    html += '<div class="analysis-box"><h3>综合分析报告</h3>';
+    html += `<div style="background:#f8f9fa;padding:15px;border-radius:8px;margin-bottom:20px;">`;
+    html += `<p style="font-size:15px;line-height:1.8;"><strong>一、整体情况</strong></p>`;
+    html += `<p style="margin-top:8px;line-height:1.8;">本次评价共收集 <strong>${records.length}</strong> 位评价人的有效问卷，平均综合得分 <strong>${avgTotal.toFixed(1)}</strong> 分，整体等级为「<strong>${avgGrade}</strong>」。</p>`;
+    html += `</div>`;
+
+    const top2 = avgList.slice(0, 2);
+    html += `<p style="font-size:15px;margin-bottom:10px;"><strong>二、优势板块分析</strong></p>`;
+    for (const s of top2) {
+      const rate = s.avgScore / s.maxScore * 100;
+      const info = A_ANALYSIS[s.code];
+      html += `<div class="strength-item" style="margin-bottom:10px;"><strong>${s.code} ${s.name}</strong>（平均得分率 ${rate.toFixed(0)}%）<br><span style="font-size:13px;color:#555;">${info ? info.strength : ''}</span></div>`;
+    }
+
+    const weakList = avgList.filter(s => s.avgScore / s.maxScore < 0.7);
+    if (weakList.length > 0) {
+      html += `<p style="font-size:15px;margin:20px 0 10px;"><strong>三、薄弱板块诊断</strong></p>`;
+      for (const s of weakList) {
+        const rate = s.avgScore / s.maxScore * 100;
+        const info = A_ANALYSIS[s.code];
+        let level = rate < 60 ? '严重薄弱' : '有待加强';
+        html += `<div class="weakness-item" style="margin-bottom:10px;"><strong>${s.code} ${s.name}</strong>（平均得分率 ${rate.toFixed(0)}%，${level}）<br><span style="font-size:13px;color:#555;">${info ? info.weakness : ''}</span></div>`;
+      }
+    }
+
+    html += `<p style="font-size:15px;margin:20px 0 10px;"><strong>四、改进建议</strong></p>`;
+    const bottom2 = avgList.slice(-2).reverse();
+    for (const s of bottom2) {
+      const info = A_ANALYSIS[s.code];
+      html += `<div style="background:#fff8e1;padding:12px 15px;border-radius:6px;margin-bottom:10px;border-left:4px solid #f39c12;"><strong>【${s.code} ${s.name}】</strong><br><span style="font-size:13px;color:#555;">${info ? info.advice : ''}</span></div>`;
+    }
+    html += `<div style="background:#eaf2f8;padding:12px 15px;border-radius:6px;margin-top:10px;"><strong>总体建议：</strong><span style="font-size:13px;color:#555;">建议学校以本次评价结果为依据，成立职教质量提升工作小组，对照评价体系制定三年提升规划和年度改进清单。优先补齐权重高、得分低的板块，定期开展校内自评，持续跟踪改进成效。</span></div>`;
+    html += '</div>';
+  }
+
+  return html;
+}
+
+// ===== 返回首页 =====
+function goHome() {
+  document.getElementById('resultScreen').classList.add('hidden');
+  document.getElementById('summaryScreen').classList.add('hidden');
+  document.getElementById('homeScreen').classList.remove('hidden');
+  refreshHomeTip();
+  window.scrollTo(0,0);
+}
+
+function clearMyData() {
+  if (currentUser.type === 'admin') { alert('管理员不能清空数据'); return; }
+  if (!confirm('确定要清空本校所有评价数据吗？此操作不可恢复。')) return;
+  const data = getStorage();
+  data.schools[currentUser.name] = { records: [] };
+  setStorage(data);
+  goHome();
+}
+</script>
+</body>
+</html>
